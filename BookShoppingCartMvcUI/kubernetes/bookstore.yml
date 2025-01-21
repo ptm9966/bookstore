@@ -1,12 +1,12 @@
 apiVersion: v1 
 kind: Service 
 metadata:
-  name: expense-service
+  name: bookstore-service
   namespace: sql
 spec:
   type: LoadBalancer
   selector:
-     app: expensetracker
+     app: bookstore
   ports:
     - port: 8080
       targetPort: 8080
@@ -15,21 +15,21 @@ spec:
 ---
 kind: Deployment 
 metadata:
-  name: expensetracker-deployment
+  name: bookstore-deployment
   namespace: sql 
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: expensetracker
+      app: bookstore
   template:
     metadata:
       labels:
-        app: expensetracker
+        app: bookstore
     spec:
       containers:
         - name: expensetracker
-          image: purushottam3366/aspnetexpenstracker
+          image: purushottam3366/aspnetbookstore
           ports:
             - containerPort: 8080
           env:
