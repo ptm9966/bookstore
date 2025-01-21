@@ -33,7 +33,7 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            - name: ConnectionStrings__DevConnection
+            - name: ConnectionStrings__DefaultConnection
               value: Server=mssql-deployment,1433;Database=bookstoredb;User Id=sa;Password=Ptm@19941225;TrustServerCertificate=True  # mssql-deployment is the service name of mssql which uses to connect
           livenessProbe:
             tcpSocket:
