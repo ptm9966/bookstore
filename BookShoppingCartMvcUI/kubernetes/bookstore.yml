@@ -1,0 +1,47 @@
+apiVersion: v1 
+kind: Service 
+metadata:
+  name: expense-service
+  namespace: sql
+spec:
+  type: LoadBalancer
+  selector:
+     app: expensetracker
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+
+---
+kind: Deployment 
+metadata:
+  name: expensetracker-deployment
+  namespace: sql 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: expensetracker
+  template:
+    metadata:
+      labels:
+        app: expensetracker
+    spec:
+      containers:
+        - name: expensetracker
+          image: purushottam3366/aspnetexpenstracker
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ConnectionStrings__DevConnection
+              value: Server=mssql-deployment,1433;Database=bookstoredb;User Id=sa;Password=Ptm@19941225;TrustServerCertificate=True  # mssql-deployment is the service name of mssql which uses to connect
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 3
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 3
