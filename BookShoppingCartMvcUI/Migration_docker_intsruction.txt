@@ -1,0 +1,34 @@
+###################################### Migration using migration bundle##########################3
+
+IF like use migration bundle you need to use Dockefile.migrationbundle image  we use this in multistage docker image
+
+docker build -t bookstore:migration -f Dockerfile.migrationbundle .
+
+ docker run -it -e ConnectionStrings__DefaultConnection="Server=ptmsql,1433;Database=bookstoredb3;User Id=sa;Password=Ptm@19941225;TrustServerCertificate=True" --name bookstore_migrationdev --network bookstorenetwork bookstore:migration
+
+Note: we need to pass ConnectionStrings__DefaultConnection this environment variable to start migration 
+
+2) -- network . SQL server and container need to be same network then only connection will establish.
+
+
+######################## Migration directly without bundle ################################################
+
+IF use directly dotnet SDK file , Not required bundle file we directly run the command.
+
+dotnet ef database update --project YourProject.csproj --startup-project YourProject.csproj --connection "${ConnectionStrings__DefaultConnection}"
+
+docker build -t bookstorewithoutbundle -f Dockerfile.withoutbundle .                                                                              
+
+docker run -it -e ConnectionStrings__DefaultConnection="Server=ptmsql,1433;Database=bookstoredb3;User Id=sa;Password=Ptm@19941225;TrustServerCertificate=True" --name bookstore_without_bundle --network bookstorenetwork bookstore:withoutbundle
+
+Note: we need to pass ConnectionStrings__DefaultConnection this environment variable to start migration 
+
+2) -- network . SQL server and container need to be same network then only connection will establish.
+
+
+##############################  Bookstore application image################################
+
+
+Docker build -t bookstore_app -f Dockerfile.app . 
+
+Docker run -itd -e ConnectionStrings__DefaultConnection="Server=ptmsql,1433;Database=bookstoredb3;User Id=sa;Password=Ptm@19941225;TrustServerCertificate=True" --name bookstore_app -p 8020:8080 --network bookstorenetwork bookstore_app 

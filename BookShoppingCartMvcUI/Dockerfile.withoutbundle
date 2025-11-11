@@ -1,0 +1,28 @@
+# Stage 1: Build your application and migrations
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Copy the project file and restore dependencies to leverage Docker's layer caching
+COPY "*.csproj" /src/
+RUN dotnet restore "BookShoppingCartMvcUI.csproj"
+
+# Copy the rest of your application code
+COPY . .
+
+# Build the application
+RUN dotnet build "BookShoppingCartMvcUI.csproj" -c Release -o /app/build
+
+# Install the dotnet-ef tool globally if it's not already in the SDK image
+# (It often is, but this ensures it's available)
+RUN dotnet tool install --global dotnet-ef --version 8.0.* # Use your EF Core version
+
+# Ensure the dotnet-ef tool is in the PATH
+ENV PATH="$PATH:/root/.dotnet/tools"
+
+# Set the entrypoint to run the migrations
+# --project and --startup-project ensure EF Core knows which project to use for migrations
+# --connection is crucial for passing the database connection string
+RUN dotnet tool restore
+
+# Command to run migrations. Ensure your connection string is available via environment variables.
+ENTRYPOINT dotnet ef database update --project BookShoppingCartMvcUI.csproj --startup-project BookShoppingCartMvcUI.csproj --connection "${ConnectionStrings__DefaultConnection}"

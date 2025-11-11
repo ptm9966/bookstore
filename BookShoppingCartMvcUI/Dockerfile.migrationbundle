@@ -1,0 +1,52 @@
+# Stage 1: Build your application and migrations
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Copy the project file and restore dependencies to leverage Docker's layer caching
+COPY "*.csproj" /src/
+RUN dotnet restore "BookShoppingCartMvcUI.csproj"
+
+# Copy the rest of your application code
+COPY . .
+WORKDIR "/src/"
+
+# Build the application
+RUN dotnet build "BookShoppingCartMvcUI.csproj" -c Release -o /app/publish
+
+# Install the dotnet-ef tool globally if it's not already in the SDK image
+# (It often is, but this ensures it's available)
+RUN dotnet tool install --global dotnet-ef --version 8.0.* # Use your EF Core version
+
+# Ensure the dotnet-ef tool is in the PATH
+ENV PATH="$PATH:/root/.dotnet/tools"
+
+RUN dotnet tool restore
+
+# Set the entrypoint to run the migrations
+# --project and --startup-project ensure EF Core knows which project to use for migrations
+# --connection is crucial for passing the database connection string
+RUN dotnet ef migrations bundle --output /src/migrations-bundle --project BookShoppingCartMvcUI.csproj --startup-project BookShoppingCartMvcUI.csproj --self-contained  --runtime linux-x64
+
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 As final
+
+WORKDIR /app
+
+COPY --from=build /src/migrations-bundle .
+# Make the bundle executable (important for Linux containers)
+RUN chmod +x migrations-bundle
+
+# Set the entrypoint to run the migration bundle
+# The bundle accepts the connection string as an argument
+#ENTRYPOINT ["./migrations-bundle", "--connection", "$(DB_CONNECTION_STRING)"]
+#ENV ConnectionStrings__DevConnection="Server=ptmsql,1433;Database=bookstoredbnew;User Id=sa;Password=Ptm@19941225;TrustServerCertificate=True"
+# ----------------------------------------------------
+# ----------------------------------------------------
+
+#ENTRYPOINT ["/bin/bash", "-c", "./migrations-bundle --connection "${DB_CONNECTION_STRING}""]
+
+#ENTRYPOINT ["/src/migrations-bundle", --connection, "${DB_CONNECTION_STRING}"]
+ENTRYPOINT /app/migrations-bundle --connection "${ConnectionStrings__DefaultConnection}"
+
+
+#ENTRYPOINT ["/bin/bash", "-c", "echo "Received Connection String: "${DB_CONNECTION_STRING}"" && /src/migrations-bundle --connection "${DB_CONNECTION_STRING}""]

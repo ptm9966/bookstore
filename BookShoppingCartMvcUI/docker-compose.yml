@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  web:
+    image: bookstore:latest
+    container_name: bookstore
+    ports:
+      - "5555:8080"
+    depends_on:
+      - db
+  
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: ptmsql
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Ptm@19941225
+    volumes:
+      - bookstore:/var/opt/mssql
+    ports:
+      - "1434:1433"
+volumes:
+  bookstore:
