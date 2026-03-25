@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS BUILD
 
 # Set the working directory
 WORKDIR /app
@@ -13,10 +13,10 @@ RUN dotnet restore
 COPY . ./
 
 # Publish the application
-RUN dotnet publish -c Release -o out
+RUN dotnet publish -c Release -o /app/out
 
 # Stage 2: Create the final runtime image with a non-root user
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final-env
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS PUBLISH
 
 # Create a non-root user and group
 # The UID and GID can be chosen, but often 1000 or higher is used for non-system users.
@@ -28,7 +28,7 @@ RUN addgroup --gid $GID appgroup && adduser --system --uid $UID --ingroup appgro
 WORKDIR /app
 
 # Copy the published application from the build stage
-COPY --from=build-env /app/out .
+COPY --from=BUILD /app/out .
 
 # Set ownership of the application directory to the non-root user
 # This is crucial so the non-root user can read and execute the files.
