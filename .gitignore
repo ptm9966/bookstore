@@ -1,0 +1,59 @@
+# ===============================
+# Visual Studio / IDE files
+# ===============================
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.vscode/
+
+# Rider / JetBrains IDE
+.idea/
+
+# ===============================
+# Build / Output folders
+# ===============================
+bin/
+obj/
+prod/
+publish/
+out/
+
+# ===============================
+# Configuration / Secrets
+# ===============================
+appsettings.Development.json
+*.local.settings.json
+.env
+*.env
+
+# ===============================
+# Docker
+# ===============================
+docker-compose.override.yml
+*.log
+*.pid
+*.seed
+tmp/
+
+# ===============================
+# Node / Frontend (if any)
+# ===============================
+node_modules/
+dist/
+build/
+
+# ===============================
+# Database / SQL backups
+# ===============================
+*.bak
+
+# ===============================
+# MISC
+# ===============================
+*.swp
+*.DS_Store
+*.class
+*.lock
+Thumbs.db

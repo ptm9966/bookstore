@@ -1,4 +1,0 @@
-wwwroot\css\bootstrap.min.css
-wwwroot\favicon.ico
-wwwroot\images\hobbit.jfif
-wwwroot\images\NoImage.png
