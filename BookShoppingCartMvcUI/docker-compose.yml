@@ -10,7 +10,7 @@ services:
     volumes:
       - bookstore:/var/opt/mssql
     ports:
-      - "1434:1433"
+      - "1433:1433"
     networks:
       - bookstore-net
     healthcheck:
